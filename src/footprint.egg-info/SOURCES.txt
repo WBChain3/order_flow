@@ -1,0 +1,16 @@
+README.md
+pyproject.toml
+src/footprint/__init__.py
+src/footprint/_config.py
+src/footprint/_exceptions.py
+src/footprint/_version.py
+src/footprint.egg-info/PKG-INFO
+src/footprint.egg-info/SOURCES.txt
+src/footprint.egg-info/dependency_links.txt
+src/footprint.egg-info/entry_points.txt
+src/footprint.egg-info/requires.txt
+src/footprint.egg-info/top_level.txt
+src/footprint/dataset/__init__.py
+src/footprint/engine/__init__.py
+src/footprint/io/__init__.py
+tests/test_config.py

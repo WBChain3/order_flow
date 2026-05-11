@@ -1,0 +1,2 @@
+[console_scripts]
+footprint-build = footprint.pipeline:main

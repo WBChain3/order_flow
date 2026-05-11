@@ -1,0 +1,13 @@
+Metadata-Version: 2.4
+Name: footprint
+Version: 0.1.0
+Summary: Footprint chart tensor construction for order-flow analysis
+Requires-Python: >=3.11
+Requires-Dist: numpy>=1.26
+Requires-Dist: pyarrow>=14
+Requires-Dist: polars>=0.20
+Requires-Dist: structlog>=24
+Provides-Extra: dev
+Requires-Dist: pytest>=8; extra == "dev"
+Requires-Dist: pytest-benchmark>=4; extra == "dev"
+Requires-Dist: hypothesis>=6; extra == "dev"

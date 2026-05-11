@@ -1,0 +1,9 @@
+numpy>=1.26
+pyarrow>=14
+polars>=0.20
+structlog>=24
+
+[dev]
+pytest>=8
+pytest-benchmark>=4
+hypothesis>=6
