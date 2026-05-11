@@ -36,9 +36,9 @@ class TestFootprintConfig:
         with pytest.raises(ConfigError):
             FootprintConfig(time_buckets=bad_dim)
 
-    @pytest.mark.parametrize("good_dim", [32, 64, 128, 256])
-    def test_accepts_valid_dimensions(self, good_dim: int) -> None:
-        cfg = FootprintConfig(price_levels=good_dim, time_buckets=good_dim)
+    @pytest.mark.parametrize("good_dim,range_ticks", [(32, 32), (64, 64), (128, 128), (256, 256)])
+    def test_accepts_valid_dimensions(self, good_dim: int, range_ticks: int) -> None:
+        cfg = FootprintConfig(price_levels=good_dim, time_buckets=good_dim, price_range_ticks=range_ticks)
         assert cfg.price_levels == good_dim
         assert cfg.time_buckets == good_dim
 
@@ -85,3 +85,19 @@ class TestFootprintConfig:
         assert "normalization" in r
         assert "schema_version" in r
         assert "instrument" in r
+
+
+class TestPriceRangeTicksValidation:
+    def test_rejects_range_less_than_levels(self) -> None:
+        with pytest.raises(ConfigError):
+            FootprintConfig(price_range_ticks=32, price_levels=64)
+
+    def test_accepts_range_equal_to_levels(self) -> None:
+        cfg = FootprintConfig(price_range_ticks=64, price_levels=64)
+        assert cfg.price_range_ticks == 64
+        assert cfg.price_levels == 64
+
+    def test_accepts_range_greater_than_levels(self) -> None:
+        cfg = FootprintConfig(price_range_ticks=128, price_levels=64)
+        assert cfg.price_range_ticks == 128
+        assert cfg.price_levels == 64

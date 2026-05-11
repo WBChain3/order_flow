@@ -45,6 +45,11 @@ class FootprintConfig:
             raise ConfigError(
                 f"price_range_ticks must be > 0, got {self.price_range_ticks}"
             )
+        if self.price_range_ticks < self.price_levels:
+            raise ConfigError(
+                f"price_range_ticks ({self.price_range_ticks}) must be >= "
+                f"price_levels ({self.price_levels}) so each level covers at least one tick"
+            )
         if self.normalization not in _VALID_NORMALIZATIONS:
             raise ConfigError(
                 f"normalization must be one of {sorted(_VALID_NORMALIZATIONS)}, "
