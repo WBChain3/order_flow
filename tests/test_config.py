@@ -1,3 +1,10 @@
+"""Validation tests for FootprintConfig dataclass.
+
+Covers all __post_init__ guards: power-of-2 dimensions, square grid,
+positive tick size, valid normalization, positive schema_version,
+and price_range_ticks >= price_levels.
+"""
+
 from __future__ import annotations
 
 from dataclasses import FrozenInstanceError
@@ -9,6 +16,8 @@ from footprint._exceptions import ConfigError
 
 
 class TestFootprintConfig:
+    """Validation tests for FootprintConfig dataclass."""
+
     def test_creates_with_defaults(self) -> None:
         cfg = FootprintConfig()
         assert cfg.candle_duration_seconds == 60
@@ -28,6 +37,7 @@ class TestFootprintConfig:
 
     @pytest.mark.parametrize("bad_dim", [0, -1, 50, 63, 65, 100])
     def test_rejects_invalid_price_levels(self, bad_dim: int) -> None:
+        # 0, -1 test non-positives; 50, 63, 65, 100 test non-powers-of-2 near valid values.
         with pytest.raises(ConfigError):
             FootprintConfig(price_levels=bad_dim)
 
@@ -38,6 +48,7 @@ class TestFootprintConfig:
 
     @pytest.mark.parametrize("good_dim,range_ticks", [(32, 32), (64, 64), (128, 128), (256, 256)])
     def test_accepts_valid_dimensions(self, good_dim: int, range_ticks: int) -> None:
+        # Powers of 2 that match the _POWERS_OF_2 frozenset in _config.py.
         cfg = FootprintConfig(price_levels=good_dim, time_buckets=good_dim, price_range_ticks=range_ticks)
         assert cfg.price_levels == good_dim
         assert cfg.time_buckets == good_dim
@@ -88,6 +99,8 @@ class TestFootprintConfig:
 
 
 class TestPriceRangeTicksValidation:
+    """Tests for the price_range_ticks >= price_levels guard."""
+
     def test_rejects_range_less_than_levels(self) -> None:
         with pytest.raises(ConfigError):
             FootprintConfig(price_range_ticks=32, price_levels=64)

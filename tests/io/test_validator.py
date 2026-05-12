@@ -1,3 +1,10 @@
+"""TickValidator tests covering rejection logic and logging.
+
+Tests inject specific anomalies (price outliers, OOS timestamps,
+zero size, duplicate sequences) into otherwise clean synthetic data
+and assert the validator catches them.
+"""
+
 from __future__ import annotations
 
 import numpy as np
@@ -10,6 +17,8 @@ from footprint.io._validator import TickValidator
 
 
 class TestTickValidator:
+    """TickValidator tests covering rejection logic and logging."""
+
     @pytest.fixture
     def config(self) -> FootprintConfig:
         return FootprintConfig()
@@ -76,7 +85,7 @@ class TestTickValidator:
 
     def test_log_has_correct_keys(self, config: FootprintConfig, clean_ticks: np.ndarray) -> None:
         val = TickValidator(config)
-        clean_ticks["price"][0] = 999_999.0
+        clean_ticks["price"][100] = 999_999.0
         val.validate(clean_ticks)
         if val.rejection_log:
             entry = val.rejection_log[0]
@@ -84,7 +93,9 @@ class TestTickValidator:
             assert "type" in entry
 
     def test_rolling_vwap_catches_moderate_outlier(self, config: FootprintConfig) -> None:
-        """A 10σ outlier on a 1s rolling basis must be caught."""
+        """A 10σ outlier on a 1s rolling basis must be caught.
+        # Injected outlier is +500 ticks from local VWAP, extreme enough to trigger rolling-window detection.
+        """
         gen = SyntheticTickGenerator(config, seed=42)
         ticks = gen.generate(2000, mid_price=20000.0)
 

@@ -1,3 +1,10 @@
+"""Price-to-level mapping for the footprint grid.
+
+Grid span is controlled by price_range_ticks, not price_levels.
+price_levels is fixed resolution (CNN input dimension).
+price_range_ticks / price_levels determines ticks-per-level.
+"""
+
 from __future__ import annotations
 
 import numpy as np
@@ -21,7 +28,9 @@ class PriceGrid:
         half_range_ticks = config.price_range_ticks // 2
 
         self._min_price = mid_price - (half_range_ticks * self._tick_size)
+        # Subtract one tick_size so the top level's upper edge aligns with the range boundary (not beyond).
         self._max_price = mid_price + (half_range_ticks * self._tick_size) - self._tick_size
+        # May be > 1 when price_range_ticks > price_levels; each level then covers multiple ticks.
         self._ticks_per_level = config.price_range_ticks / config.price_levels
 
         self._level_prices = self._min_price + np.arange(self._num_levels) * (self._ticks_per_level * self._tick_size)
@@ -29,6 +38,7 @@ class PriceGrid:
     def assign_levels(self, prices: np.ndarray) -> np.ndarray:
         level_size = self._ticks_per_level * self._tick_size
         levels = np.floor((prices - self._min_price) / level_size).astype(np.intp)
+        # Clamp instead of rejecting so ticks slightly outside the range still contribute to the edge bucket.
         levels = np.clip(levels, 0, self._num_levels - 1)
         return levels
 

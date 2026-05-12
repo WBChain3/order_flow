@@ -1,3 +1,7 @@
+"""FootprintBuilder tests covering shape, dtype, channel relationships,
+and side-based separation.
+"""
+
 from __future__ import annotations
 
 import numpy as np
@@ -9,6 +13,9 @@ from footprint.io._synthetic import SyntheticTickGenerator
 
 
 class TestFootprintBuilder:
+    """FootprintBuilder tests covering shape, dtype, channel relationships,
+    and side-based separation."""
+
     @pytest.fixture
     def config(self) -> FootprintConfig:
         return FootprintConfig()

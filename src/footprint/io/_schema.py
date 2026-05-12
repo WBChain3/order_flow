@@ -1,3 +1,10 @@
+"""Canonical tick schema for Parquet and NumPy structured arrays.
+
+The schema is the contract between data ingestion (ParquetTickReader,
+SyntheticTickGenerator) and the engine (FootprintPipeline).
+Any deviation in field names, types, or nullability is a DataError.
+"""
+
 from __future__ import annotations
 
 import pyarrow as pa
@@ -23,7 +30,7 @@ def numpy_tick_dtype() -> np.dtype:
         ("size", "i4"),
         ("side", "i1"),
         ("sequence", "i8"),
-        ("symbol", "U10"),
+        ("symbol", "U10"),  # U10 accommodates typical CME root+month+year codes (e.g., "NQH5")
     ])
 
 

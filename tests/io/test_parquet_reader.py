@@ -1,3 +1,9 @@
+"""Roundtrip and schema validation tests for ParquetTickReader.
+
+Uses manually constructed synthetic ticks (not SyntheticTickGenerator)
+to guarantee exact field values for assert equality.
+"""
+
 from __future__ import annotations
 
 import numpy as np
@@ -5,13 +11,14 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
-from footprint._config import FootprintConfig
 from footprint._exceptions import DataError
 from footprint.io._parquet_reader import ParquetTickReader
 from footprint.io._schema import TICK_SCHEMA, numpy_tick_dtype
 
 
 class TestParquetTickReader:
+    """Roundtrip and schema validation tests for ParquetTickReader."""
+
     @pytest.fixture
     def synthetic_ticks(self) -> np.ndarray:
         dtype = numpy_tick_dtype()

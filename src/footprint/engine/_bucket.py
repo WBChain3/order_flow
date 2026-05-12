@@ -1,3 +1,10 @@
+"""Time-bucket assignment for footprint candles.
+
+Determines candle boundaries by flooring the first tick's timestamp
+to the nearest candle-duration boundary. All subsequent ticks are
+assigned to buckets 0..63 within that candle window.
+"""
+
 from __future__ import annotations
 
 import numpy as np
@@ -26,6 +33,7 @@ class TimeBucketAggregator:
 
         if np.any(buckets < 0) or np.any(buckets >= self._bucket_count):
             out_of_range = np.where((buckets < 0) | (buckets >= self._bucket_count))[0]
+            # Ticks outside the candle window are rejected, not clamped — they belong to the next candle.
             raise DataError(
                 f"{len(out_of_range)} tick(s) fall outside the candle window "
                 f"(bucket range 0..{self._bucket_count - 1})"
@@ -38,4 +46,5 @@ class TimeBucketAggregator:
 
     def _candle_start(self, timestamps_ns: np.ndarray) -> int:
         first_ts = int(timestamps_ns[0])
+        # Floor to nearest candle boundary so candles align across replay sessions.
         return (first_ts // self._candle_duration_ns) * self._candle_duration_ns

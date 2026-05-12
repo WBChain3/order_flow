@@ -1,3 +1,9 @@
+"""Deterministic synthetic tick generator for testing.
+
+All output matches the canonical TICK_SCHEMA. Seeds are fixed so
+unit tests assert exact array equality across runs.
+"""
+
 from __future__ import annotations
 
 import numpy as np
@@ -10,7 +16,11 @@ class SyntheticTickGenerator:
     """Generates synthetic tick data for pipeline testing.
 
     Deterministic with a fixed seed. Produces structured NumPy arrays
-    matching the standard tick schema.
+    matching the standard tick schema. Random walk price is centered
+    on a configurable mid (default 20000.0 for NQ).
+
+    generate_candle() wraps generate() and folds timestamps into a single
+    candle window, ensuring the output is suitable for FootprintPipeline.process().
     """
 
     def __init__(self, config: FootprintConfig, seed: int = 42) -> None:
@@ -21,6 +31,7 @@ class SyntheticTickGenerator:
         dtype = numpy_tick_dtype()
         arr = np.empty(num_ticks, dtype=dtype)
 
+        # exponential(scale=1ms) simulates Poisson process tick arrivals.
         start_ns = 0
         timestamps_ns = start_ns + np.cumsum(
             self._rng.exponential(scale=1_000_000, size=num_ticks).astype("i8")
@@ -41,6 +52,7 @@ class SyntheticTickGenerator:
         num_ticks = int(self._rng.integers(500, 2000))
         arr = self.generate(num_ticks, mid_price=mid_price)
         candle_duration_ns = self._config.candle_duration_seconds * 1_000_000_000
+        # Fold timestamps into [0, candle_duration) then sort to maintain monotonicity.
         arr["timestamp_ns"] = arr["timestamp_ns"] % candle_duration_ns
         arr["timestamp_ns"] = np.sort(arr["timestamp_ns"])
         return arr

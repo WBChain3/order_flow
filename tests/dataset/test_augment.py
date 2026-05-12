@@ -1,3 +1,5 @@
+"""AugmentationPipeline tests for identity mode, transform application, and chain ordering."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -6,6 +8,8 @@ from footprint.dataset._augment import AugmentationPipeline
 
 
 class TestAugmentationPipeline:
+    """AugmentationPipeline tests for identity, transform, and ordering."""
+
     def test_disabled_returns_identity(self) -> None:
         pipeline = AugmentationPipeline(enabled=False)
         sample = np.random.default_rng(42).random((4, 64, 64)).astype(np.float32)

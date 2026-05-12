@@ -1,3 +1,9 @@
+"""Determinism, monotonicity, and schema compliance tests for SyntheticTickGenerator.
+
+All tests assert exact array equality where deterministic (same seed)
+and range checks where stochastic (different seeds).
+"""
+
 from __future__ import annotations
 
 import numpy as np
@@ -8,6 +14,8 @@ from footprint.io._synthetic import SyntheticTickGenerator
 
 
 class TestSyntheticTickGenerator:
+    """Determinism, monotonicity, and schema compliance tests."""
+
     @pytest.fixture
     def config(self) -> FootprintConfig:
         return FootprintConfig()

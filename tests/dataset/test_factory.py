@@ -1,3 +1,5 @@
+"""DatasetFactory integration tests combining windowing, augmentation, and weighting."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -9,6 +11,8 @@ from footprint.dataset._factory import DatasetFactory
 
 
 class TestDatasetFactory:
+    """DatasetFactory integration tests."""
+
     @pytest.fixture
     def config(self) -> FootprintConfig:
         return FootprintConfig()

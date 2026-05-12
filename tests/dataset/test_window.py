@@ -1,3 +1,5 @@
+"""SlidingWindowExtractor tests for lookback, stride, overlap, and edge cases."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -9,6 +11,8 @@ from footprint.dataset._window import SlidingWindowExtractor
 
 
 class TestSlidingWindowExtractor:
+    """SlidingWindowExtractor tests for lookback, stride, overlap, and edge cases."""
+
     @pytest.fixture
     def config(self) -> FootprintConfig:
         return FootprintConfig()

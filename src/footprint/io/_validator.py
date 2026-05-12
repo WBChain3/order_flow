@@ -1,6 +1,15 @@
+"""Validates and filters tick data before engine ingestion.
+
+Price outliers are detected via rolling 1s VWAP window (not global),
+because a single candle can contain regime shifts where a global std
+would be too wide to catch subtle outliers.
+
+Zero-size trades are warned, not rejected — they may indicate legitimate
+cancelled or adjusted trades from the exchange.
+"""
+
 from __future__ import annotations
 
-from collections.abc import Callable
 from typing import Any
 
 import numpy as np
@@ -9,9 +18,9 @@ from footprint._config import FootprintConfig
 
 
 class TickValidator:
-    """Validates and filters tick data.
+    """Validates and filters tick data before engine ingestion.
 
-    Removes anomalous ticks and logs rejections.
+    Price outliers are detected via rolling 1s VWAP window (not global).
     """
 
     def __init__(self, config: FootprintConfig, clock_skew_window_ns: int = 10_000_000) -> None:
@@ -45,6 +54,7 @@ class TickValidator:
 
         mask = np.ones(len(ticks), dtype=bool)
         left = 0
+        # Two-pointer sliding window: maintain [left, right-1] of ticks within 1s of current tick.
         for right in range(len(ticks)):
             while ts[right] - ts[left] > window_ns:
                 left += 1
@@ -65,6 +75,7 @@ class TickValidator:
             if pre_count < 5:
                 continue
 
+            # Exclude the current tick from its own window so VWAP is purely historical.
             window_prices = prices[pre_left:pre_right + 1]
             window_sizes = sizes[pre_left:pre_right + 1]
             size_sum = window_sizes.sum()
@@ -78,15 +89,17 @@ class TickValidator:
             threshold = 5.0 * std
             if abs(prices[right] - vwap) > threshold:
                 mask[right] = False
-                self._rejection_log.append({
-                    "reason": "price_outlier",
-                    "type": "reject",
-                    "tick_index": int(right),
-                    "price": float(prices[right]),
-                    "vwap": float(vwap),
-                    "std": float(std),
-                    "timestamp_ns": int(ts[right]),
-                })
+                # Cap rejection log at 100 entries per reason to prevent memory bloat on corrupt files.
+                if len(self._rejection_log) < 100:
+                    self._rejection_log.append({
+                        "reason": "price_outlier",
+                        "type": "reject",
+                        "tick_index": int(right),
+                        "price": float(prices[right]),
+                        "vwap": float(vwap),
+                        "std": float(std),
+                        "timestamp_ns": int(ts[right]),
+                    })
         return mask
 
     def _check_zero_size(self, ticks: np.ndarray) -> np.ndarray:

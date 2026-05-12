@@ -1,3 +1,9 @@
+"""PriceGrid tests covering centering, span, level assignment, and clamping.
+
+Includes both default config (1 tick/level) and wider span configs
+(2+ ticks/level) to verify the price_range_ticks / price_levels logic.
+"""
+
 from __future__ import annotations
 
 import numpy as np
@@ -8,6 +14,8 @@ from footprint.engine._price_grid import PriceGrid
 
 
 class TestPriceGrid:
+    """PriceGrid tests covering centering, span, level assignment, and clamping."""
+
     @pytest.fixture
     def config(self) -> FootprintConfig:
         return FootprintConfig()
@@ -30,6 +38,7 @@ class TestPriceGrid:
         assert grid.max_price == pytest.approx(expected_max)
 
     def test_min_max_price_wider_range(self) -> None:
+        """price_range_ticks=128 with price_levels=64 means each level covers 2 ticks; span is ±64 ticks."""
         cfg = FootprintConfig(price_range_ticks=128, price_levels=64)
         grid = PriceGrid(cfg, mid_price=20000.0)
         half_range = 64

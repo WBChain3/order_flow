@@ -1,3 +1,5 @@
+"""SampleWeighter stub tests. Private repo will extend with curriculum logic."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -6,6 +8,8 @@ from footprint.dataset._weighter import SampleWeighter
 
 
 class TestSampleWeighter:
+    """SampleWeighter stub tests."""
+
     def test_returns_one(self) -> None:
         weighter = SampleWeighter()
         sample = np.random.default_rng(42).random((4, 64, 64)).astype(np.float32)

@@ -1,3 +1,10 @@
+"""End-to-end pipeline: raw ticks → normalized 4×64×64 footprint array.
+
+Orchestrates PriceGrid → TimeBucketAggregator → FootprintBuilder →
+FootprintNormalizer in sequence. This is the single public entry point
+for the footprint engine.
+"""
+
 from __future__ import annotations
 
 import numpy as np
@@ -8,7 +15,12 @@ from footprint.engine._normalizer import FootprintNormalizer
 
 
 class FootprintPipeline:
-    """End-to-end pipeline: raw ticks → normalized 4×64×64 footprint array."""
+    """Batch-only, stateless pipeline.
+
+    process(ticks) takes one candle's worth of ticks and returns one
+    (4, 64, 64) array. No internal state persists between calls.
+    Deterministic: same ticks → same output.
+    """
 
     def __init__(self, config: FootprintConfig) -> None:
         self._config = config
@@ -21,5 +33,6 @@ class FootprintPipeline:
         return self._normalizer.normalize(footprint)
 
     def _compute_mid_price(self, ticks: np.ndarray) -> float:
+        # Use VWAP (not simple midpoint) because it reflects actual traded volume center.
         vwap = np.average(ticks["price"], weights=ticks["size"].astype("f8"))
         return float(vwap)

@@ -1,3 +1,10 @@
+"""Reads Parquet tick files into structured NumPy arrays.
+
+Validates schema on construction so read_all / read_chunked never
+return malformed data. Chunked reading keeps memory flat for large
+historical files.
+"""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -54,6 +61,7 @@ class ParquetTickReader:
         arr["size"] = table.column("size").to_numpy()
         arr["side"] = table.column("side").to_numpy()
         seq_col = table.column("sequence")
+        # sequence is nullable in schema; fill nulls with 0 to keep int64 dtype.
         arr["sequence"] = np.where(seq_col.is_null(), 0, seq_col.to_numpy()).astype("i8")
         arr["symbol"] = table.column("symbol").to_numpy().astype("U10")
         return arr

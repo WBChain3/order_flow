@@ -1,3 +1,9 @@
+"""Shared pytest fixtures for the footprint test suite.
+
+All tests use synthetic data so the suite runs without external data
+dependencies or network access.
+"""
+
 from __future__ import annotations
 
 from typing import Generator
@@ -20,7 +26,9 @@ def alt_config() -> FootprintConfig:
 
 @pytest.fixture
 def synthetic_ticks() -> Generator[np.ndarray, None, None]:
-    """Small batch of structured tick data for quick tests."""
+    """Small batch of structured tick data for quick tests.
+    # Manual construction instead of SyntheticTickGenerator to avoid circular imports in conftest.
+    """
     n = 100
     dtype = np.dtype([
         ("timestamp_ns", "i8"),

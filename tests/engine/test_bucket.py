@@ -1,3 +1,9 @@
+"""Bucket assignment tests for TimeBucketAggregator.
+
+Covers range bounds, dense coverage, empty input, out-of-window rejection,
+and monotonic ordering.
+"""
+
 from __future__ import annotations
 
 import numpy as np
@@ -9,6 +15,8 @@ from footprint.engine._bucket import TimeBucketAggregator
 
 
 class TestTimeBucketAggregator:
+    """Bucket assignment tests for TimeBucketAggregator."""
+
     @pytest.fixture
     def config(self) -> FootprintConfig:
         return FootprintConfig()
@@ -25,6 +33,7 @@ class TestTimeBucketAggregator:
         assert np.all(buckets < config.time_buckets)
 
     def test_assign_buckets_dense(self, config: FootprintConfig) -> None:
+        """Linearly spaced timestamps across the full candle to guarantee at least one tick per bucket."""
         aggregator = TimeBucketAggregator(config)
         n = 5000
         candle_duration_ns = config.candle_duration_seconds * 1_000_000_000

@@ -1,7 +1,12 @@
+"""Immutable configuration dataclass for the entire pipeline.
+
+All downstream classes (PriceGrid, FootprintBuilder, Normalizer) consume
+a single FootprintConfig instance so hyperparameters live in one place.
+"""
+
 from __future__ import annotations
 
 from dataclasses import FrozenInstanceError, dataclass
-from math import log2
 
 _VALID_NORMALIZATIONS = frozenset({"per_candle_minmax", "per_candle_zscore", "none"})
 
@@ -10,6 +15,13 @@ _POWERS_OF_2 = frozenset({32, 64, 128, 256})
 
 @dataclass(frozen=True)
 class FootprintConfig:
+    """Frozen dataclass. All validation runs in __post_init__.
+
+    price_levels: fixed CNN input resolution (must be power of 2).
+    price_range_ticks: total span in ticks; determines ticks-per-level.
+      Must be >= price_levels so each level covers at least 1 tick.
+    """
+
     candle_duration_seconds: int = 60
     price_levels: int = 64
     time_buckets: int = 64
@@ -45,6 +57,7 @@ class FootprintConfig:
             raise ConfigError(
                 f"price_range_ticks must be > 0, got {self.price_range_ticks}"
             )
+        # Ensure span >= resolution so no level is smaller than one tick.
         if self.price_range_ticks < self.price_levels:
             raise ConfigError(
                 f"price_range_ticks ({self.price_range_ticks}) must be >= "

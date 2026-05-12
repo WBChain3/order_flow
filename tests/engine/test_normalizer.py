@@ -1,3 +1,7 @@
+"""FootprintNormalizer tests for minmax, zscore, none modes,
+zero-channel handling, and shape preservation.
+"""
+
 from __future__ import annotations
 
 import numpy as np
@@ -8,6 +12,9 @@ from footprint.engine._normalizer import FootprintNormalizer
 
 
 class TestFootprintNormalizer:
+    """FootprintNormalizer tests for minmax, zscore, none modes,
+    zero-channel handling, and shape preservation."""
+
     @pytest.fixture
     def config(self) -> FootprintConfig:
         return FootprintConfig()
@@ -47,6 +54,7 @@ class TestFootprintNormalizer:
         assert np.all(result == 0.0)
 
     def test_zscore_normalization(self) -> None:
+        """Only two non-zero values in ch0; std will be non-zero so z-score is well-defined."""
         cfg = FootprintConfig(normalization="per_candle_zscore")
         footprint = np.zeros((4, 64, 64), dtype=np.float32)
         footprint[0, 0, 0] = 100.0

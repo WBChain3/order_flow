@@ -1,3 +1,9 @@
+"""CLI entry point for the end-to-end pipeline.
+
+Current implementation is a stub. Stage 5 will wire this to the full
+FootprintPipeline + DatasetFactory chain.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -28,6 +34,7 @@ def run_pipeline(
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
 
+    # TODO: Wire to ParquetTickReader → TickValidator → FootprintPipeline → DatasetFactory
     logger.info("Reading ticks", path=tick_path)
     reader = ParquetTickReader(tick_path)
     ticks = reader.read_all()

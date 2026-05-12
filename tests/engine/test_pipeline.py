@@ -1,3 +1,9 @@
+"""End-to-end pipeline tests using synthetic candles.
+
+Covers output shape/dtype, value ranges, channel consistency,
+determinism, and seed sensitivity.
+"""
+
 from __future__ import annotations
 
 import numpy as np
@@ -9,6 +15,8 @@ from footprint.io._synthetic import SyntheticTickGenerator
 
 
 class TestFootprintPipeline:
+    """End-to-end pipeline tests using synthetic candles."""
+
     @pytest.fixture
     def config(self) -> FootprintConfig:
         return FootprintConfig()
@@ -41,6 +49,7 @@ class TestFootprintPipeline:
         assert result[3].max() <= 2.0
 
     def test_deterministic(self, config: FootprintConfig) -> None:
+        """Two separate FootprintPipeline instances with identical config and ticks must produce bit-exact arrays."""
         gen = SyntheticTickGenerator(config, seed=42)
         ticks = gen.generate_candle()
         p1 = FootprintPipeline(config)
